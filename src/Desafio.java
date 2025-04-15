@@ -4,9 +4,7 @@ public class Desafio {
     public static void main(String[] args) {
         String nombreCliente = "Tony Stark";
         String tipoCuenta = "Corriente";
-        Double saldoDisponible = 1599.99;
-
-
+        double saldoDisponible = 1599.99;
 
         System.out.println(String.format(
                 "**********************************\n" +
@@ -17,50 +15,83 @@ public class Desafio {
                 nombreCliente, tipoCuenta, saldoDisponible
         ));
 
-        Scanner numero = new Scanner(System.in);
-        System.out.print("** Escriba el número de la opción deseada **\n");
-        String opciones = """
+        Scanner scanner = new Scanner(System.in);
+        boolean continuar = true;
+
+        while (continuar) {
+            System.out.println("\n** Escriba el número de la opción deseada **");
+            String opciones = """
                 1 - Consultar saldo
                 2 - Retirar
                 3 - Depositar
                 4 - Salir
                 """;
-        System.out.println(opciones);
+            System.out.println(opciones);
 
-        int opcionIngresada = numero.nextInt();
+            String entrada = scanner.nextLine();
 
-        switch (opcionIngresada) {
-            case 1:
-                System.out.println("El saldo actualizado es: " + saldoDisponible + " $");
-                break;
-                    case 2:
-                            System.out.print("¿Cuál es el valor que deseas retirar?\n");
-                            double valorRetirar = numero.nextDouble();
-                        if (valorRetirar < saldoDisponible) {
-                            Double retirarSaldo = saldoDisponible - valorRetirar;
-                            System.out.println("Saldo restante: " + retirarSaldo);
+            if (entrada.isEmpty()) {
+                System.out.println("⚠️  Debe ingresar al menos una opción.");
+                continue;
+            }
+
+            int opcion;
+            try {
+                opcion = Integer.parseInt(entrada);
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Opción inválida. Ingrese un número válido.");
+                continue;
+            }
+
+            switch (opcion) {
+                case 1:
+                    System.out.println("💰 El saldo actualizado es: $" + saldoDisponible);
+                    break;
+
+                case 2:
+                    System.out.print("¿Cuál es el valor que deseas retirar?\n");
+                    String retiroTexto = scanner.nextLine();
+                    try {
+                        double valorRetirar = Double.parseDouble(retiroTexto);
+                        if (valorRetirar <= 0) {
+                            System.out.println("❌ El valor debe ser mayor que 0.");
+                        } else if (valorRetirar <= saldoDisponible) {
+                            saldoDisponible -= valorRetirar;
+                            System.out.println("✅ Retiro exitoso. Saldo restante: $" + saldoDisponible);
                         } else {
-                            System.out.println("Saldo insuficiente");
+                            System.out.println("❌ Saldo insuficiente.");
                         }
-                        break;
-                        case 3:
-                            System.out.print("¿Cuál es el valor que deseas depositar?\n");
-                            double valorDepositar = numero.nextDouble();
+                    } catch (NumberFormatException e) {
+                        System.out.println("❌ Ingrese un número válido para retirar.");
+                    }
+                    break;
 
-                            if (valorDepositar > 0 ) {
-                                Double depositarSaldo = saldoDisponible + valorDepositar;
-                                System.out.println("Saldo restante: " + depositarSaldo);
-                            } else {
-                                System.out.println("Valor insuficiente");
-                            }
+                case 3:
+                    System.out.print("¿Cuál es el valor que deseas depositar?\n");
+                    String depositoTexto = scanner.nextLine();
+                    try {
+                        double valorDepositar = Double.parseDouble(depositoTexto);
+                        if (valorDepositar <= 0) {
+                            System.out.println("❌ El valor debe ser mayor que 0.");
+                        } else {
+                            saldoDisponible += valorDepositar;
+                            System.out.println("✅ Depósito exitoso. Saldo actualizado: $" + saldoDisponible);
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("❌ Ingrese un número válido para depositar.");
+                    }
+                    break;
 
-                            break;
-                            case 4:
-                                numero.close();
-                                break;
-            default:
-                System.out.println("Debe escribir una opción válida");
+                case 4:
+                    System.out.println("👋 ¡Hasta luego!");
+                    continuar = false;
+                    break;
 
+                default:
+                    System.out.println("⚠️  Opción fuera de rango. Elija una entre 1 y 4.");
+            }
         }
+
+        scanner.close();
     }
 }
