@@ -1,10 +1,15 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Desafio {
     public static void main(String[] args) {
         String nombreCliente = "Tony Stark";
         String tipoCuenta = "Corriente";
         double saldoDisponible = 1599.99;
+        ArrayList<String> historial = new ArrayList<>();
+
+        Scanner scanner = new Scanner(System.in);
+        int opcionIngresada = 0;
 
         System.out.println(String.format(
                 "**********************************\n" +
@@ -15,83 +20,80 @@ public class Desafio {
                 nombreCliente, tipoCuenta, saldoDisponible
         ));
 
-        Scanner scanner = new Scanner(System.in);
-        boolean continuar = true;
+        while (true) {
+            System.out.println("""
+                    ** Escriba el número de la opción deseada **
+                    1 - Consultar saldo
+                    2 - Retirar
+                    3 - Depositar
+                    4 - Ver historial de movimientos
+                    5 - Salir
+                    """);
 
-        while (continuar) {
-            System.out.println("\n** Escriba el número de la opción deseada **");
-            String opciones = """
-                1 - Consultar saldo
-                2 - Retirar
-                3 - Depositar
-                4 - Salir
-                """;
-            System.out.println(opciones);
+            if (scanner.hasNextInt()) {
+                opcionIngresada = scanner.nextInt();
+                scanner.nextLine(); // consumir salto de línea
 
-            String entrada = scanner.nextLine();
-
-            if (entrada.isEmpty()) {
-                System.out.println("⚠️  Debe ingresar al menos una opción.");
-                continue;
-            }
-
-            int opcion;
-            try {
-                opcion = Integer.parseInt(entrada);
-            } catch (NumberFormatException e) {
-                System.out.println("❌ Opción inválida. Ingrese un número válido.");
-                continue;
-            }
-
-            switch (opcion) {
-                case 1:
-                    System.out.println("💰 El saldo actualizado es: $" + saldoDisponible);
-                    break;
-
-                case 2:
-                    System.out.print("¿Cuál es el valor que deseas retirar?\n");
-                    String retiroTexto = scanner.nextLine();
-                    try {
-                        double valorRetirar = Double.parseDouble(retiroTexto);
-                        if (valorRetirar <= 0) {
-                            System.out.println("❌ El valor debe ser mayor que 0.");
-                        } else if (valorRetirar <= saldoDisponible) {
-                            saldoDisponible -= valorRetirar;
-                            System.out.println("✅ Retiro exitoso. Saldo restante: $" + saldoDisponible);
+                switch (opcionIngresada) {
+                    case 1:
+                        System.out.printf("El saldo actualizado es: %.2f $\n", saldoDisponible);
+                        historial.add("Consultó saldo: " + saldoDisponible);
+                        break;
+                    case 2:
+                        System.out.print("¿Cuál es el valor que deseas retirar? ");
+                        if (scanner.hasNextDouble()) {
+                            double valorRetirar = scanner.nextDouble();
+                            scanner.nextLine(); // consumir salto de línea
+                            if (valorRetirar > 0 && valorRetirar <= saldoDisponible) {
+                                saldoDisponible -= valorRetirar;
+                                System.out.printf("Saldo restante: %.2f\n", saldoDisponible);
+                                historial.add("Retiró: -" + valorRetirar + " | Nuevo saldo: " + saldoDisponible);
+                            } else {
+                                System.out.println("Monto inválido o saldo insuficiente.");
+                            }
                         } else {
-                            System.out.println("❌ Saldo insuficiente.");
+                            System.out.println("Por favor, ingrese un número válido.");
+                            scanner.nextLine(); // limpiar entrada incorrecta
                         }
-                    } catch (NumberFormatException e) {
-                        System.out.println("❌ Ingrese un número válido para retirar.");
-                    }
-                    break;
-
-                case 3:
-                    System.out.print("¿Cuál es el valor que deseas depositar?\n");
-                    String depositoTexto = scanner.nextLine();
-                    try {
-                        double valorDepositar = Double.parseDouble(depositoTexto);
-                        if (valorDepositar <= 0) {
-                            System.out.println("❌ El valor debe ser mayor que 0.");
+                        break;
+                    case 3:
+                        System.out.print("¿Cuál es el valor que deseas depositar? ");
+                        if (scanner.hasNextDouble()) {
+                            double valorDepositar = scanner.nextDouble();
+                            scanner.nextLine(); // consumir salto de línea
+                            if (valorDepositar > 0) {
+                                saldoDisponible += valorDepositar;
+                                System.out.printf("Saldo actualizado: %.2f\n", saldoDisponible);
+                                historial.add("Depositó: +" + valorDepositar + " | Nuevo saldo: " + saldoDisponible);
+                            } else {
+                                System.out.println("Debe ingresar un monto mayor a 0.");
+                            }
                         } else {
-                            saldoDisponible += valorDepositar;
-                            System.out.println("✅ Depósito exitoso. Saldo actualizado: $" + saldoDisponible);
+                            System.out.println("Por favor, ingrese un número válido.");
+                            scanner.nextLine(); // limpiar entrada incorrecta
                         }
-                    } catch (NumberFormatException e) {
-                        System.out.println("❌ Ingrese un número válido para depositar.");
-                    }
-                    break;
-
-                case 4:
-                    System.out.println("👋 ¡Hasta luego!");
-                    continuar = false;
-                    break;
-
-                default:
-                    System.out.println("⚠️  Opción fuera de rango. Elija una entre 1 y 4.");
+                        break;
+                    case 4:
+                        System.out.println("=== Historial de movimientos ===");
+                        if (historial.isEmpty()) {
+                            System.out.println("Aún no hay movimientos registrados.");
+                        } else {
+                            for (String movimiento : historial) {
+                                System.out.println(movimiento);
+                            }
+                        }
+                        break;
+                    case 5:
+                        System.out.println("Gracias por utilizar nuestros servicios. ¡Hasta pronto!");
+                        scanner.close();
+                        return;
+                    default:
+                        System.out.println("Opción inválida. Por favor, elige entre 1 y 5.");
+                }
+            } else {
+                System.out.println("Debes ingresar un número válido.");
+                scanner.nextLine(); // limpiar entrada incorrecta
             }
         }
-
-        scanner.close();
     }
 }
